@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PulsatingText.qml</file>
+        <file>AnimatedButton.qml</file>
+    </qresource>
+</RCC>
