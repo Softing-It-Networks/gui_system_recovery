@@ -20,21 +20,14 @@ public:
     } DEVICE;
     explicit AppCore(QObject *parent = nullptr);
     void setFilePatch(const QString &filePath);
-    int getActiveBoot();
     Q_INVOKABLE void startTimer(int time);
     Q_INVOKABLE void restart();
     Q_INVOKABLE void boot();
     Q_INVOKABLE void update();
     Q_INVOKABLE int activeBoot();
 private:
-    void updateBin(QProcess &proc);
-    void updateTranslations(QProcess &proc);
-    void updateInitD(QProcess &proc);
-    void updateGui(QProcess &proc);
-    void updateGuiRestart(QProcess &proc);
-    void updateGuiAlive(QProcess &proc);
-    void updateVendorNames(QProcess &proc);
-    void updateImages(QProcess &proc);
+    void updateUsr(QProcess &proc);
+    void updateEtc(QProcess &proc);
     int m_SecondsToEnd = 0;
     QString m_filePath;
     QTimer *m_timer;
