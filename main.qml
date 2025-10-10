@@ -105,7 +105,7 @@ Window {
                       Text {
                             id: lable_1
                             anchors.centerIn: parent
-                            font.pixelSize: mainWindow.height * 0.035
+                            font.pixelSize: mainWindow.height * 0.024
                             text: qsTr("Restarting current partition in")
                       }
           }
@@ -137,7 +137,7 @@ Window {
                       Text {
                                             id: lable_2
                                             anchors.centerIn: parent
-                                            font.pixelSize: mainWindow.height * 0.035
+                                            font.pixelSize: mainWindow.height * 0.024
                                             text: qsTr("seconds")
 
                       }
@@ -153,14 +153,14 @@ Window {
                       Row{
                                             anchors.horizontalCenter: parent.horizontalCenter
                       Text {
-                                            font.pixelSize: mainWindow.height * 0.035
+                                            font.pixelSize: mainWindow.height * 0.024
                                             text: qsTr("Current partition is: ")
                                             Layout.alignment: Qt.AlignVCenter
                       }
                       Text {
 
                                             // anchors.centerIn: parent
-                                            font.pixelSize: mainWindow.height * 0.035
+                                            font.pixelSize: mainWindow.height * 0.024
 
                                             // color: "#ef285d"
                                             color: {
@@ -198,7 +198,7 @@ Window {
                       color: "transparent"
                       Text {
                                             anchors.centerIn: parent
-                                            font.pixelSize: mainWindow.height * 0.035
+                                            font.pixelSize: mainWindow.height * 0.024
                                             text: qsTr("Please select:")
                       }
          }
@@ -234,7 +234,7 @@ Window {
                       color: "transparent"
                       Text {
                       anchors.centerIn: parent
-                      font.pixelSize: mainWindow.height * 0.035
+                      font.pixelSize: mainWindow.height * 0.024
                       text: qsTr("or")
                       }
          }
@@ -247,8 +247,8 @@ Window {
                       color: "transparent"
                       Text {
                       anchors.centerIn: parent
-                      font.pixelSize: mainWindow.height * 0.035
-                      text: qsTr("Warning: Settings and data will be lost when booting from other partition")
+                      font.pixelSize: mainWindow.height * 0.024
+                      text: qsTr("Warning: Settings and data will be lost\n when booting from other partition")
                       }
          }
          Rectangle{
@@ -263,7 +263,7 @@ Window {
                       width: parent.width
                       height: parent.height
                       radius: 10
-                      textButton: qsTr("Boot from other partition")
+                      textButton: qsTr("Boot from other\n partition")
                       onButtonClicked:{
                                             // hideLables()
                                             appCore.boot()

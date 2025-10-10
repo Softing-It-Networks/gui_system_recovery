@@ -38,8 +38,8 @@ private:
     QString m_appScriptLiveName;
     QString m_appFs1Name;
     QString m_appFs2Name;
-    // QString m_rootFs1Name;
-    // QString m_rootFs2Name;
+    QString m_rootFs1Name;
+    QString m_rootFs2Name;
     DEVICE m_currentDevice;
 
 signals:
