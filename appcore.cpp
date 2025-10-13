@@ -57,7 +57,7 @@ AppCore::AppCore(QObject *parent)
 
 void AppCore::setFilePatch(const QString &filePath)
 {
-    qDebug()<<"File patch"<<filePath;
+    // qDebug()<<"File patch"<<filePath;
     m_timer->stop();
     m_filePath = filePath;
     emit setUpdateMode();
@@ -114,11 +114,11 @@ void AppCore::update()
 
         system("/bin/mkdir /tmp/softwareUpdate");
         if(/*activeboot*/m_activeBoot == 1){
-            qDebug()<<"____boot_1"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str();
+            // qDebug()<<"____boot_1"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str();
             system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str());
         }
         else{
-            qDebug()<<"____boot_2"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str();
+            // qDebug()<<"____boot_2"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str();
             system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str());
         }
 
@@ -150,17 +150,20 @@ void AppCore::updateUsr(QProcess &proc)
     QString command;
     command = QString("/usr/bin/killall %1").arg(m_appName);   // >/dev/null 2>&1"; /// wren_gui
     proc.start(command);
-    qDebug()<<"____updateUsr_commanr_1"<<command<< proc.waitForFinished(-1);
+    // qDebug()<<"____updateUsr_commanr_1"<<command<<
+        proc.waitForFinished(-1);
 
     /// updating current partition
     command = QString("rsync -av --checksum %1/usr/ /opt/%2/usr/").arg(m_filePath, m_deviceName);
     proc.start(command);
-    qDebug()<<"____updateUsr_commanr_2"<<command<< proc.waitForFinished(-1);
+    // qDebug()<<"____updateUsr_commanr_2"<<command<<
+        proc.waitForFinished(-1);
 
     /// updating another partition
     command = QString("rsync -av --checksum %1/usr/ /tmp/softwareUpdate/usr/").arg(m_filePath);
     proc.start(command);
-    qDebug()<<"____updateUsr_commanr_1"<<command<< proc.waitForFinished(-1);
+    // qDebug()<<"____updateUsr_commanr_1"<<command<<
+        proc.waitForFinished(-1);
 
 }
 
@@ -169,7 +172,8 @@ void AppCore::updateEtc(QProcess &proc)
     QString command;
     command = QString("rsync -av --checksum %1/etc/ /etc/").arg(m_filePath);
     proc.start(command);
-    qDebug()<<"____updateEtc_commanr_1"<<command<< proc.waitForFinished(-1);
+    // qDebug()<<"____updateEtc_commanr_1"<<command<<
+        proc.waitForFinished(-1);
 
     if(m_currentDevice == DEVICE::WREN){
         system("/bin/mkdir /tmp/rootFsUpdate");
@@ -181,7 +185,13 @@ void AppCore::updateEtc(QProcess &proc)
         }
 
         command = QString("rsync -av --checksum %1/etc/ /tmp/rootFsUpdate/etc/").arg(m_filePath);
-
+        proc.start(command);
+        proc.waitForFinished(-1);
+        command = "/bin/mount /tmp/rootFsUpdate";
+        proc.start(command);
+        proc.waitForFinished(-1);
+        command = "rm -r /tmp/rootFsUpdate";
+        proc.start(command);
         proc.waitForFinished(-1);
     }
 }
