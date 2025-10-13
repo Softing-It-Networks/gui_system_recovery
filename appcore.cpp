@@ -104,23 +104,16 @@ void AppCore::update()
 
 
         QProcess proc;
-        // proc.start("/usr/sbin/fw_printenv activeboot");
-        // proc.waitForFinished(-1);
-        // QString proc_stdout = proc.readAllStandardOutput();
-        // if(proc_stdout.contains("activeboot=")){
-        //     activeboot = proc_stdout.split("=").last().remove("\n").toInt();
-        // }
-        // proc.kill();
 
-        system("/bin/mkdir /tmp/softwareUpdate");
-        if(/*activeboot*/m_activeBoot == 1){
-            // qDebug()<<"____boot_1"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str();
-            system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str());
-        }
-        else{
-            // qDebug()<<"____boot_2"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str();
-            system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str());
-        }
+        // system("/bin/mkdir /tmp/softwareUpdate");
+        // if(/*activeboot*/m_activeBoot == 1){
+        //     // qDebug()<<"____boot_1"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str();
+        //     system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str());
+        // }
+        // else{
+        //     // qDebug()<<"____boot_2"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str();
+        //     system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str());
+        // }
 
         updateUsr(proc);
         updateEtc(proc);
@@ -128,8 +121,8 @@ void AppCore::update()
 
         proc.kill();
 
-        system("/bin/umount /tmp/softwareUpdate");
-        system("/bin/rmdir /tmp/softwareUpdate");
+        // system("/bin/umount /tmp/softwareUpdate");
+        // system("/bin/rmdir /tmp/softwareUpdate");
 
         command = "rm -r "+m_filePath;
         system(command.toStdString().c_str());
@@ -148,6 +141,18 @@ int AppCore::activeBoot()
 void AppCore::updateUsr(QProcess &proc)
 {
     QString command;
+
+    system("/bin/mkdir /tmp/softwareUpdate");
+    if(/*activeboot*/m_activeBoot == 1){
+        // qDebug()<<"____boot_1"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str();
+        system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs2Name).toStdString().c_str());
+    }
+    else{
+        // qDebug()<<"____boot_2"<<QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str();
+        system(QString("/bin/mount /dev/%1 /tmp/softwareUpdate").arg(m_appFs1Name).toStdString().c_str());
+    }
+
+
     command = QString("/usr/bin/killall %1").arg(m_appName);   // >/dev/null 2>&1"; /// wren_gui
     proc.start(command);
     // qDebug()<<"____updateUsr_commanr_1"<<command<<
@@ -164,6 +169,10 @@ void AppCore::updateUsr(QProcess &proc)
     proc.start(command);
     // qDebug()<<"____updateUsr_commanr_1"<<command<<
         proc.waitForFinished(-1);
+
+
+    system("/bin/umount /tmp/softwareUpdate");
+    system("/bin/rmdir /tmp/softwareUpdate");
 
 }
 
