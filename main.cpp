@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appCore", &appCore);
     engine.load(url);
 
+    appCore.checkRecoveryMod();
+
     for(int i=0; i<argc; i++){
         if(i == 1){
             qDebug()<<"Path:"<<argv[i];

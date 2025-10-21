@@ -16,8 +16,7 @@ Window {
      property bool initialized: false
      property bool isUpdating: false
 
-
-     visibility: Window.FullScreen
+     // visibility: Window.FullScreen
 
      function onTimerUpdated(newVal){
                       timerVal.text = newVal;
@@ -39,6 +38,10 @@ Window {
                       timerVal.text = qsTr("Updating");
                       hideLables();
      }
+     function onRecoveryMod(isRecovery){
+                      rect_10_recoveryButton.visible = isRecovery;
+                      console.log("onRecoveryMod");
+     }
      function hideLables(){
                       processRect.visible = false;
                       rect_1_text.visible = false;
@@ -50,7 +53,7 @@ Window {
                       rect_8_text.visible = false;
                       rect_9_bootButton.visible = false;
                       rect_2_timer.anchors.centerIn = mainColumn;
-
+                      rect_10_recoveryButton.visible = false;
      }
 
      onActiveChanged: {
@@ -64,7 +67,7 @@ Window {
 
                  console.log("Окно активировано, запускаем таймер...");
              }
-         }
+     }
 
 
      Column{
@@ -273,10 +276,42 @@ Window {
                       }
 
          }
+         Item {
+               id: emptyItem_0
+               width: parent.width
+               height: 20  // размер отступа
+           }
+         Rectangle{
+                      id: rect_10_recoveryButton
+                      width: Math.min(Math.max(mainWindow.width * 0.4, 200), mainWindow.width/2)
+                      height: mainWindow.height * 0.1
+                      radius: 10
+                      color: "transparent"
+                      anchors.horizontalCenter: parent.horizontalCenter
+
+
+                      AnimatedButton {
+                      anchors.centerIn: parent
+                      width: parent.width
+                      height: parent.height
+                      radius: 10
+                      //anchors.topMargin: 50
+                      textButton: qsTr("Recover")
+                      onButtonClicked:{
+                                            // hideLables()
+                                            appCore.recovery()
+                                            // console.log("Hi from bootButton")
+                                            // appCore.boot()
+                      }
+                      }
+
+         }
+
      }
 
 
      Component.onCompleted: {
+                      appCore.setUpRecoveryMode.connect(onRecoveryMod)
                       appCore.setUpdateMode.connect(onUpdateMode)
                       appCore.currentTime.connect(onTimerUpdated)
                       appCore.timerText.connect(onUpdateTimerText)

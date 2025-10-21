@@ -1,5 +1,16 @@
 #include "appcore.h"
 
+
+#define NETXPERT_HOME_DIR "/home/netxpert/"
+#define NETXPERT_BACKUP_DIR "/home/netxpert/BackUp/"
+
+#define TEST_HOME_DIR "/home/max/TEST_DIR/"
+#define TEST_BACKUP_DIR "/home/max/TEST_DIR/.BackUp/"
+
+// #define REPORT_SUMMARY "_summary"
+// #define REPORT_DETAILED "_detailed"
+
+
 AppCore::AppCore(QObject *parent)
     : QObject{parent}
 {
@@ -7,9 +18,18 @@ AppCore::AppCore(QObject *parent)
 
     connect(m_timer, &QTimer::timeout, this, &AppCore::onTimeout);
 
+    m_exceptionList.append("BackUp");
+    m_exceptionList.append(".license");
+    m_exceptionList.append(".softing");
+    m_exceptionList.append(".images");
+
 
     QString activeboot = "";
     char buf[16];
+
+    m_appSettings = new QSettings("/home/netxpert/.softing/gui_system_recovery_settings.ini", QSettings::IniFormat);
+
+
 
     FILE *fp = popen("/usr/sbin/fw_printenv activeboot 2>&1", "r");
     if (fp)
@@ -63,6 +83,20 @@ void AppCore::setFilePatch(const QString &filePath)
     emit setUpdateMode();
 }
 
+void AppCore::checkRecoveryMod()
+{
+    if(m_appSettings->value("rebutCnt", 0).toInt() >= 1){
+        /// show recovery button
+        m_appSettings->setValue("rebutCnt", 0);
+        emit setUpRecoveryMode(true);
+    }
+    else{
+        m_appSettings->setValue("rebutCnt", m_appSettings->value("rebutCnt", 0).toInt() +1);
+        emit setUpRecoveryMode(false);
+    }
+
+}
+
 void AppCore::startTimer(int time)
 {
     m_timer->start(1000);
@@ -72,6 +106,8 @@ void AppCore::startTimer(int time)
 
 void AppCore::restart()
 {
+    // return;
+
     m_timer->stop();
     QTimer::singleShot(100, this, [this]() {
         emit timerText(tr("Restarting..."));
@@ -80,6 +116,87 @@ void AppCore::restart()
         system(QString("/usr/bin/killall %1 >/dev/null 2>&1").arg(m_appName).toStdString().c_str());
         system(QString("/etc/init.d/%1 start > /dev/null").arg(m_appScriptName).toStdString().c_str());
         exit(2);
+    });
+}
+
+void AppCore::recovery()
+{
+    qDebug()<<"recovery";
+
+    m_timer->stop();
+    QTimer::singleShot(100, this, [this]() {
+        emit timerText(tr("Recovering..."));
+    });
+
+
+    QTimer::singleShot(400, this, [this]() {
+
+    QDir dir(NETXPERT_HOME_DIR/*TEST_HOME_DIR*/);
+    QFile filel;
+
+    // QFileInfoList files;
+    // QFileInfoList dirs;
+
+    // QFileInfoList filesAndDirs;
+    // filesAndDirs = dir.entryInfoList(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot | QDir::Files );
+
+
+
+    dir.setPath(NETXPERT_BACKUP_DIR /*TEST_BACKUP_DIR*/);
+    if(!dir.exists() )
+        dir.mkpath(NETXPERT_BACKUP_DIR /*TEST_BACKUP_DIR*/);
+
+
+
+    // foreach (QFileInfo name, filesAndDirs) {
+    //     if(m_exceptionList.contains(name.fileName()))
+    //         filesAndDirs.removeAll(name);
+    // }
+
+    // if((filesAndDirs.size() == m_exceptionList.size())){
+    //     restart();
+    // }
+
+
+    QString timeStr = QDateTime::currentDateTime().time().toString("hh_mm_ss");
+    QString dateStr = QDateTime::currentDateTime().date().toString("yyyy_MM_dd");
+    QString backUpName = QString(dateStr+"__"+timeStr );
+    QString backUpDir = NETXPERT_BACKUP_DIR /*TEST_BACKUP_DIR*/ + QString( backUpName );
+
+    dir.mkpath(backUpDir);
+    dir.setPath(backUpDir);
+
+    int filesCnt =0;
+
+    copyRecursively(NETXPERT_HOME_DIR /*TEST_HOME_DIR*/, backUpDir, filesCnt);
+    // qDebug()<<"filesCnt"<<filesCnt<<m_filesCnt;
+    if(filesCnt == 0){
+        dir.setPath(backUpDir);
+        dir.removeRecursively();
+
+        restart();
+    }else{
+
+        // QProcess proc;
+        QString command = QString("cd %1 && tar -czvf %2.tar.gz %3/").arg(NETXPERT_HOME_DIR /*TEST_HOME_DIR*/, backUpName, backUpDir);
+        command = QString("cd %1 && tar -czvf %2.tar.gz %3").arg(NETXPERT_BACKUP_DIR, backUpName, backUpName);
+        qDebug()<<"___command"<<command;
+        system(command.toStdString().c_str());
+
+        // command = QString("cd %1 && mv %2.tar.gz %3").arg(NETXPERT_HOME_DIR /*TEST_HOME_DIR*/, backUpName, NETXPERT_BACKUP_DIR /*TEST_BACKUP_DIR*/);
+        // qDebug()<<"___command"<<command;
+        // system(command.toStdString().c_str());
+
+        dir.setPath(backUpDir);
+        dir.removeRecursively();
+
+        QSettings appSettings("/home/netxpert/.softing/revolverapisettings.ini", QSettings::IniFormat);
+        appSettings.beginGroup("cablescreen");
+        appSettings.setValue("lastfileloaded", QString());
+        appSettings.endGroup();
+
+        restart();
+    }
     });
 }
 
@@ -96,8 +213,8 @@ void AppCore::boot()
 
 void AppCore::update()
 {
+    // return;
 
-    //return;
     QTimer::singleShot(200, this, [this]() {
         QString command;
         // int activeboot = 0;
@@ -203,6 +320,47 @@ void AppCore::updateEtc(QProcess &proc)
         proc.start(command);
         proc.waitForFinished(-1);
     }
+}
+
+bool AppCore::copyRecursively(const QString &srcFilePath, const QString &tgtFilePath, int &cnt)
+{
+    QFileInfo srcFileInfo(srcFilePath);
+    if (srcFileInfo.isDir()) {
+        QDir targetDir(tgtFilePath);
+        targetDir.cdUp();
+        if (!targetDir.mkpath(QFileInfo(tgtFilePath).fileName())) {
+            return false;
+        }
+        QDir sourceDir(srcFilePath);
+        if(sourceDir.isEmpty()){
+            sourceDir.removeRecursively();
+            return true;
+        }
+
+        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+        foreach (const QString &fileName, fileNames) {
+            if((m_exceptionList.contains(fileName)) or fileName.endsWith(".REC"))
+                continue;
+            const QString newSrcFilePath = srcFilePath + QLatin1Char('/') + fileName;
+            const QString newTgtFilePath = tgtFilePath + QLatin1Char('/') + fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, cnt)) {
+                if(sourceDir.isEmpty()){
+                    sourceDir.removeRecursively();
+                }
+                return false;
+            }
+            if(sourceDir.isEmpty())
+                sourceDir.removeRecursively();
+        }
+    } else {
+        if (/*!QFile::copy(srcFilePath, tgtFilePath)*/!QFile::rename(srcFilePath, tgtFilePath)) {
+            return false;
+        }
+        else
+            cnt++;
+    }
+
+    return true;
 }
 
 void AppCore::onTimeout()
