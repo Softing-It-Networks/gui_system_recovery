@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>PulsatingText.qml</file>
         <file>AnimatedButton.qml</file>
+        <file>MyPopUpWindow.qml</file>
     </qresource>
 </RCC>

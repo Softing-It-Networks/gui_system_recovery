@@ -15,6 +15,8 @@ Window {
      color: "#006f88"
      property bool initialized: false
      property bool isUpdating: false
+     property bool isRecovering: false
+     property int mainTimerVal: 30
 
      // visibility: Window.FullScreen
 
@@ -40,6 +42,9 @@ Window {
      }
      function onRecoveryMod(isRecovery){
                       rect_10_recoveryButton.visible = isRecovery;
+                      isRecovering = isRecovery;
+                      if(isRecovery === true)
+                          delayedTimer.start();
                       console.log("onRecoveryMod");
      }
      function hideLables(){
@@ -60,12 +65,17 @@ Window {
              if (active && !initialized) {
                  initialized = true;
                       // timerVal.text=  appCore.getTimerVal();
-                 if(!isUpdating)
-                      appCore.startTimer(30);
+                 if(!isUpdating){
+                      timerVal.text = mainTimerVal;
+                      console.log("isRecovering:", isRecovering);
+                      if(!isRecovering)
+                          appCore.startTimer(mainTimerVal);
+                 }
                  else
                       appCore.update();
 
                  console.log("Окно активировано, запускаем таймер...");
+
              }
      }
 
@@ -307,6 +317,29 @@ Window {
 
          }
 
+     }
+
+     Timer{
+                      id: delayedTimer
+                      interval: 500
+                      onTriggered: {
+                                            popUpWindow.open();
+                      }
+     }
+
+
+
+     MyPopUpWindow {
+                           id: popUpWindow
+                           anchors.centerIn: parent
+                           width: mainWindow.width/2
+                           height: mainWindow.height/2
+                           fontPixelSize: mainWindow.height * 0.024
+                           title: qsTr("Info")
+                           message: qsTr("A cyclic reboot has been detected.\nBoot from another partition or restore the current one. \nWarning! \nRestoring will create a backup of your data.")
+                           onButtonClicked: {
+                                                 appCore.startTimer(mainTimerVal);
+                           }
      }
 
 
