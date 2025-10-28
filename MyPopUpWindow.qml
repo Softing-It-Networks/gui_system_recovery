@@ -62,11 +62,21 @@ Popup {
             wrapMode: Text.Wrap
             Layout.fillWidth: true
             Layout.fillHeight: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
         
         Button {
             text: qsTr("Close")
             Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            background: Rectangle {
+                    radius: 5  // Радиус закругления углов
+            //         color: customButton.down ? "#d0d0d0" :
+            //                customButton.hovered ? "#e0e0e0" : "#f0f0f0"
+            //         border.color: "#cccccc"
+                     border.width: 1
+            }
             onClicked: {
                 popUpWindow.close()
                 buttonClicked()
