@@ -245,7 +245,10 @@ void AppCore::update()
         system(command.toStdString().c_str());
         command = "rm "+m_filePath+".tar";
         system(command.toStdString().c_str());
-        system("/sbin/poweroff");
+
+
+        system("/opt/revolver/usr/local/bin/init-eeprom -s 1");
+        system("/sbin/shutdown -r now");
     });
 
 }

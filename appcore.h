@@ -9,8 +9,9 @@
 #include <QDirIterator>
 #include <QSettings>
 #include <QDateTime>
+#include <QThread>
 #include <QDebug>
-
+#include <unistd.h>
 
 class AppCore : public QObject
 {
