@@ -99,7 +99,7 @@ Window {
                PulsatingText {
                     anchors.centerIn: parent
                      horizontalAlignment: Text.AlignHCenter
-                    text: qsTr("Somthing want wrong.\nPlease wait...")
+                    text: qsTr("Something went wrong.\nPlease wait...")
                     // font.pixelSize: 22
                     font.pixelSize: mainWindow.height * 0.04
 
